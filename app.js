@@ -15,7 +15,7 @@ app.set('view engine', 'jade');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -23,46 +23,84 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+app.use(function (req, res, next) {
+    next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+app.use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 
 var request = require('request');
-const cheerio = require('cheerio')
-request('https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=0&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE', function (error, response, body) {
-    //console.log('error:', error); // Print the error if one occurred
-    //console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-    //console.log('body:', body); // Print the HTML for the 멜론 homepage.
-    const $ = cheerio.load(body);
-    //내가 좋아요를 누른 가수 목록;
-    const class_b = $('a', $('.ellipsis'));
-    //https://www.npmjs.com/package/cheerio  // API참조
-    class_b.each(function(index){
-      ++index; // 숫자를 읽기 쉽게 1을 더함
-      //index 1:상세페이지로감, 2:곡명, 3:가수명, 4:가수명, 5:앨범명 ==> 이번의 경우 2,4,5 필요
-        //이후는 6,7,8,9,10인데.. 이것을 5로 나눠서 나머지로 구분하겠다. ==> 곡명은 2, 가수명은 4, 앨범명은 0
-        if(index%5 === 2){console.log($(this).text());} // 곡명
-        if(index%5 === 4){console.log($(this).text());} // 가수명
-        if(index%5 === 0){console.log($(this).text());} // 앨범명
+const cheerio = require('cheerio');
+
+//완료유무
+var stop = false;
+//멜론은 음악리스트 검색을 20개씩 시도함
+var startIndex = 0;
+
+var url = "https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=" + startIndex + "&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE";
+
+while (startIndex<60){
+    url = "https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=" + startIndex + "&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE";
+    console.log(url);
+    findMyList(url);
+    startIndex+=20;
+}
+
+
+function findMyList(url) {
+    request(url, function (error, response, body) {
+        const $ = cheerio.load(body); //크롤링후 파서기에 삽입
+
+        //console.log('error:', error); // Print the error if one occurred
+        //console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+        //console.log('body:', body); // Print the HTML for the 멜론 homepage.
+
+        //더이상 데이터 항목 없음
+        const class_a = $('div', $('.no_data'));
+        class_a.each(function () {
+            console.log($(this).text());
+            stop = true;
+        });
+
+        //내가 좋아요를 누른 가수 목록;
+        const myLike = $('a', $('.ellipsis'));
+        //https://www.npmjs.com/package/cheerio  // API참조
+        myLike.each(function (index) {
+            ++index; // 숫자를 읽기 쉽게 1을 더함
+            //index 1:상세페이지로감, 2:곡명, 3:가수명, 4:가수명, 5:앨범명 ==> 이번의 경우 2,4,5 필요
+            //이후는 6,7,8,9,10인데.. 이것을 5로 나눠서 나머지로 구분하겠다. ==> 곡명은 2, 가수명은 4, 앨범명은 0
+            if (index % 5 === 2) {
+                console.log($(this).text());
+            } // 곡명
+            if (index % 5 === 4) {
+                console.log($(this).text());
+            } // 가수명
+            if (index % 5 === 0) {
+                console.log($(this).text());
+            } // 앨범명
+        });
+        console.log(startIndex);
+        console.log(stop);
+        startIndex+=20;
+        console.log("==============================================================================================");
+        console.log(startIndex);
+        console.log("==============================================================================================");
     });
-});
+}
+
+
 //https://www.melon.com/mymusic/like/mymusiclikesong_list.htm?memberKey=5221201
 //https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=0&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE
-
-
-
 
 
 /*
@@ -76,7 +114,6 @@ $('h2').addClass('welcome')
 $.html()
 //=> <h2 class="title welcome">Hello there!</h2>
 */
-
 
 
 module.exports = app;
