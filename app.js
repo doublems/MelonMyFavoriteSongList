@@ -42,22 +42,28 @@ app.use(function (err, req, res, next) {
 var request = require('request');
 const cheerio = require('cheerio');
 
-//완료유무
-var stop = false;
+//총 좋아요를 누른 곡 개수
+//var totalNum = countMytotalFavoriteSongs(5221201); //이렇게 하고 싶은데..
+//console.log(totalNum); //여기서 동기화 작업 필요. 안하면 계속 콜백으로 넘겨줘야 할듯.. ㅎㄷㄷ (우선넘겨봄)
+
+countMytotalFavoriteSongs(5221201,function (endIndex) {
+    for(var startIndex = 0;startIndex<=endIndex;startIndex+=20){
+        var url = "https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=" + startIndex + "&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE";
+        console.log(url+"************************"+startIndex);
+        findMyList(url,startIndex);
+    }
+});
+
+
 //멜론은 음악리스트 검색을 20개씩 시도함
-var startIndex = 0;
+/*for(var startIndex = 0;startIndex<2000;startIndex+=20){
+    var url = "https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=" + startIndex + "&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE";
+    console.log(url+"************************"+startIndex);
+   // findMyList(url,startIndex);
+}*/
 
-var url = "https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=" + startIndex + "&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE";
-
-while (startIndex<60){
-    url = "https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=" + startIndex + "&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE";
-    console.log(url);
-    findMyList(url);
-    startIndex+=20;
-}
-
-
-function findMyList(url) {
+//currentIndex는 findMyList에서 전체사용가능
+function findMyList(url,currentIndex) {
     request(url, function (error, response, body) {
         const $ = cheerio.load(body); //크롤링후 파서기에 삽입
 
@@ -69,7 +75,6 @@ function findMyList(url) {
         const class_a = $('div', $('.no_data'));
         class_a.each(function () {
             console.log($(this).text());
-            stop = true;
         });
 
         //내가 좋아요를 누른 가수 목록;
@@ -89,15 +94,27 @@ function findMyList(url) {
                 console.log($(this).text());
             } // 앨범명
         });
-        console.log(startIndex);
-        console.log(stop);
-        startIndex+=20;
         console.log("==============================================================================================");
-        console.log(startIndex);
+        console.log(currentIndex);
         console.log("==============================================================================================");
     });
 }
 
+//todo 여기 콜백 개선 필요 -> 안하면 콜백헬 예약
+function countMytotalFavoriteSongs(memberKey,callback) {
+    var url = "https://www.melon.com/mymusic/like/mymusiclikesong_list.htm?memberKey="+memberKey;
+    request(url, function (error, response, body) {
+        const $ = cheerio.load(body); //크롤링후 파서기에 삽입
+        //더이상 데이터 항목 없음
+        const class_a = $($('#totCnt'));
+        class_a.each(function () {
+            var returnVal = 0;
+            returnVal = parseInt($(this).text().replace(",",""));//parseInt 이전에는 1,304가 나타남. replace는 하지 않으면 쉼표(,)를 점으로 인식해서 parseInt 동작시 1로 나타남
+            console.log(returnVal);
+            callback(returnVal);
+        });
+    });
+}
 
 //https://www.melon.com/mymusic/like/mymusiclikesong_list.htm?memberKey=5221201
 //https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=0&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE
