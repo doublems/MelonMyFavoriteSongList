@@ -18,8 +18,8 @@
       <file leaf-file-name="app.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="376">
-              <caret line="55" column="19" selection-start-line="55" selection-start-column="19" selection-end-line="55" selection-end-column="19" />
+            <state relative-caret-position="283">
+              <caret line="55" column="48" selection-start-line="55" selection-start-column="48" selection-end-line="55" selection-end-column="48" />
             </state>
           </provider>
         </entry>
@@ -153,7 +153,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1529396081064</updated>
-      <workItem from="1529396094977" duration="9780000" />
+      <workItem from="1529396094977" duration="69099000" />
     </task>
     <task id="LOCAL-00001" summary="구분자 추가 및 파싱 완료">
       <created>1529483555156</created>
@@ -162,11 +162,25 @@
       <option name="project" value="LOCAL" />
       <updated>1529483555156</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="구분자 추가 및 파싱 완료">
+      <created>1529485492393</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1529485492393</updated>
+    </task>
+    <task id="LOCAL-00003" summary="내가 좋아하는 곡의 숫자 확인 및 전체 조회">
+      <created>1529545874630</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1529545874630</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="9780000" />
+    <option name="totallyTimeSpent" value="69099000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -210,13 +224,14 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="구분자 추가 및 파싱 완료" />
-    <option name="LAST_COMMIT_MESSAGE" value="구분자 추가 및 파싱 완료" />
+    <MESSAGE value="내가 좋아하는 곡의 숫자 확인 및 전체 조회" />
+    <option name="LAST_COMMIT_MESSAGE" value="내가 좋아하는 곡의 숫자 확인 및 전체 조회" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="376">
-          <caret line="55" column="19" selection-start-line="55" selection-start-column="19" selection-end-line="55" selection-end-column="19" />
+        <state relative-caret-position="283">
+          <caret line="55" column="48" selection-start-line="55" selection-start-column="48" selection-end-line="55" selection-end-column="48" />
         </state>
       </provider>
     </entry>

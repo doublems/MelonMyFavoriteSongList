@@ -47,11 +47,13 @@ const cheerio = require('cheerio');
 //console.log(totalNum); //여기서 동기화 작업 필요. 안하면 계속 콜백으로 넘겨줘야 할듯.. ㅎㄷㄷ (우선넘겨봄)
 
 countMytotalFavoriteSongs(5221201,function (endIndex) {
+    let myFavoriteSongs = new Array();
     for(var startIndex = 0;startIndex<=endIndex;startIndex+=20){
         var url = "https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=" + startIndex + "&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE";
         console.log(url+"************************"+startIndex);
-        findMyList(url,startIndex);
+        findMyList(url,startIndex,myFavoriteSongs);
     }
+    console.log(myFavoriteSongs.length); //todo 이거 하고 싶은데 안됨
 });
 
 
@@ -63,7 +65,9 @@ countMytotalFavoriteSongs(5221201,function (endIndex) {
 }*/
 
 //currentIndex는 findMyList에서 전체사용가능
-function findMyList(url,currentIndex) {
+function findMyList(url,currentIndex,myFavoriteSongs) {
+
+
     request(url, function (error, response, body) {
         const $ = cheerio.load(body); //크롤링후 파서기에 삽입
 
@@ -84,15 +88,20 @@ function findMyList(url,currentIndex) {
             ++index; // 숫자를 읽기 쉽게 1을 더함
             //index 1:상세페이지로감, 2:곡명, 3:가수명, 4:가수명, 5:앨범명 ==> 이번의 경우 2,4,5 필요
             //이후는 6,7,8,9,10인데.. 이것을 5로 나눠서 나머지로 구분하겠다. ==> 곡명은 2, 가수명은 4, 앨범명은 0
-            if (index % 5 === 2) {
-                console.log($(this).text());
-            } // 곡명
-            if (index % 5 === 4) {
-                console.log($(this).text());
-            } // 가수명
-            if (index % 5 === 0) {
-                console.log($(this).text());
-            } // 앨범명
+
+            var songName,singerName,albumName;
+
+            if (index % 5 === 2) {  //곡명 (상세정보 페이지 이동 붙어나오면 삭제)
+                songName = $(this).text().replace("상세정보 페이지 이동","").trim();
+                //console.log(songName);
+            }else if(index % 5 === 4) { //가수명
+                singerName = $(this).text().trim();
+                //console.log(singerName);
+            }else if (index % 5 === 0) { // 앨범명
+                albumName = $(this).text().trim();
+                //console.log(albumName);
+            }
+            myFavoriteSongs.push(new Song(songName,singerName,albumName));
         });
         console.log("==============================================================================================");
         console.log(currentIndex);
@@ -115,6 +124,42 @@ function countMytotalFavoriteSongs(memberKey,callback) {
         });
     });
 }
+
+class Song{
+    constructor(songName,singerName,albumName){
+        this._songName = songName;
+        this._singerName = singerName;
+        this._albumName = albumName;
+    }
+
+    get songName() {
+        return this._songName;
+    }
+
+    set songName(value) {
+        this._songName = value;
+    }
+
+    get singerName() {
+        return this._singerName;
+    }
+
+    set singerName(value) {
+        this._singerName = value;
+    }
+
+    get albumName() {
+        return this._albumName;
+    }
+
+    set albumName(value) {
+        this._albumName = value;
+    }
+}
+
+
+
+//////////////////////참고///////////////////////////////
 
 //https://www.melon.com/mymusic/like/mymusiclikesong_list.htm?memberKey=5221201
 //https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=0&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE
