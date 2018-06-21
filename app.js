@@ -42,121 +42,118 @@ app.use(function (err, req, res, next) {
 var request = require('request');
 const cheerio = require('cheerio');
 
-//총 좋아요를 누른 곡 개수
-//var totalNum = countMytotalFavoriteSongs(5221201); //이렇게 하고 싶은데..
-//console.log(totalNum); //여기서 동기화 작업 필요. 안하면 계속 콜백으로 넘겨줘야 할듯.. ㅎㄷㄷ (우선넘겨봄)
 
-countMytotalFavoriteSongs(5221201,function (endIndex) {
-    let myFavoriteSongs = new Array();
-    for(var startIndex = 0;startIndex<=endIndex;startIndex+=20){
+
+
+
+
+// /*********나의 좋아요 곡 수량을 센 뒤에 목록 받기************/
+countMytotalFavoriteSongs(5221201, function (endIndex) {
+    var mySongList =new Array();
+    for (var startIndex = 0; startIndex < endIndex; startIndex += 20) {
         var url = "https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=" + startIndex + "&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE";
-        console.log(url+"************************"+startIndex);
-        findMyList(url,startIndex,myFavoriteSongs);
+        findMyList(url, startIndex).then(function(myFavoriteSongs){
+            mySongList = mySongList.concat(myFavoriteSongs);
+            console.log(mySongList.length);
+        })
     }
-    console.log(myFavoriteSongs.length); //todo 이거 하고 싶은데 안됨
 });
 
+function findMyList(url) {
 
-//멜론은 음악리스트 검색을 20개씩 시도함
-/*for(var startIndex = 0;startIndex<2000;startIndex+=20){
-    var url = "https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=" + startIndex + "&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE";
-    console.log(url+"************************"+startIndex);
-   // findMyList(url,startIndex);
-}*/
+    return new Promise(function (resolve, reject) {
+        request(url, function (error, response, body) {
+            const $ = cheerio.load(body); //크롤링후 파서기에 삽입
 
-//currentIndex는 findMyList에서 전체사용가능
-function findMyList(url,currentIndex,myFavoriteSongs) {
+            let myFavoriteSongs = new Array(); //반환 할 결과값 리스트
 
+            /***********내가 좋아요를 누른 목록******************/
+            //https://www.npmjs.com/package/cheerio  // API참조
+            //const myLike = $('span.odd_span, a.fc_mgray',$('.ellipsis'));
+            const myLike = $('td');
 
-    request(url, function (error, response, body) {
-        const $ = cheerio.load(body); //크롤링후 파서기에 삽입
+            myLike.each(function (index) {
+                //화면상에서 인덱스는 아래와 같음
+                //index 0:체크박스, 1:NO, 2:곡명, 3:아티스트, 4:앨범, 5:앨범명, 6:좋아요, 7:뮤비, 8:다운로드/링벨==> 이번의 경우 2,3,4 필요
+                //이후는 9.10,11,12,13,14인데.. 이것을 9으로 나눠서 나머지로 구분하겠다. ==> 곡명은 2, 가수명은 3, 앨범명은 4
+                /******************반환결과 담기용*******************/
+                var currentRoundNum = parseInt(index / 9);   //9개의 컬럼을 갖고있는 결과테이블의 라운드 반복은 index/9로 함
 
-        //console.log('error:', error); // Print the error if one occurred
-        //console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-        //console.log('body:', body); // Print the HTML for the 멜론 homepage.
+                if (myFavoriteSongs[currentRoundNum] === undefined) {
+                    myFavoriteSongs.push(new Song());
+                }
 
-        //더이상 데이터 항목 없음
-        const class_a = $('div', $('.no_data'));
-        class_a.each(function () {
-            console.log($(this).text());
+                /******************검색시작*******************/
+                if (index % 9 === 2) {  //곡명 추출(빈칸제거,재생,담기,상세정보 페이지 이동 붙어나오면 삭제 후 줄띄기 수정)
+                    var songName = $(this).text().replace("재생", "").replace("담기", "").replace("상세정보 페이지 이동", "").trim().split("\n\t")[0];
+                    // console.log("노래명 : " + songName);
+                    myFavoriteSongs[currentRoundNum].setSongName(songName);
+                } else if (index % 9 === 3) { //가수명
+                    //아티스트명 더보기 이후 삭제,
+                    var singerName = $(this).text().trim().split("아티스트명 더보기")[0].trim();
+                    var singerNameLength = singerName.length;
+                    singerName = singerName.slice(0, (singerNameLength / 2)); //이름이 두번중복되서나옴 예) 마마무마마무 : 이런경우  전체길이/2를 해서 나온값까지만 읽게 하기.
+                    //console.log("가수명 : " +singerName);
+                    myFavoriteSongs[currentRoundNum].setSingerName(singerName)
+                } else if (index % 9 === 4) { // 앨범명
+                    var albumName = $(this).text().trim();
+                    //console.log("앨범명 : " + albumName);
+                    myFavoriteSongs[currentRoundNum].setAlbumName(albumName)
+                }
+                /******************검색 끝*******************/
+                resolve(myFavoriteSongs);
+            });
         });
-
-        //내가 좋아요를 누른 가수 목록;
-        const myLike = $('a', $('.ellipsis'));
-        //https://www.npmjs.com/package/cheerio  // API참조
-        myLike.each(function (index) {
-            ++index; // 숫자를 읽기 쉽게 1을 더함
-            //index 1:상세페이지로감, 2:곡명, 3:가수명, 4:가수명, 5:앨범명 ==> 이번의 경우 2,4,5 필요
-            //이후는 6,7,8,9,10인데.. 이것을 5로 나눠서 나머지로 구분하겠다. ==> 곡명은 2, 가수명은 4, 앨범명은 0
-
-            var songName,singerName,albumName;
-
-            if (index % 5 === 2) {  //곡명 (상세정보 페이지 이동 붙어나오면 삭제)
-                songName = $(this).text().replace("상세정보 페이지 이동","").trim();
-                //console.log(songName);
-            }else if(index % 5 === 4) { //가수명
-                singerName = $(this).text().trim();
-                //console.log(singerName);
-            }else if (index % 5 === 0) { // 앨범명
-                albumName = $(this).text().trim();
-                //console.log(albumName);
-            }
-            myFavoriteSongs.push(new Song(songName,singerName,albumName));
-        });
-        console.log("==============================================================================================");
-        console.log(currentIndex);
-        console.log("==============================================================================================");
     });
-}
 
-//todo 여기 콜백 개선 필요 -> 안하면 콜백헬 예약
-function countMytotalFavoriteSongs(memberKey,callback) {
-    var url = "https://www.melon.com/mymusic/like/mymusiclikesong_list.htm?memberKey="+memberKey;
+
+}
+/***********내가 좋아요를 누른 전체 곡 갯수****************/
+function countMytotalFavoriteSongs(memberKey, callback) {
+    var url = "https://www.melon.com/mymusic/like/mymusiclikesong_list.htm?memberKey=" + memberKey;
     request(url, function (error, response, body) {
         const $ = cheerio.load(body); //크롤링후 파서기에 삽입
-        //더이상 데이터 항목 없음
         const class_a = $($('#totCnt'));
         class_a.each(function () {
             var returnVal = 0;
-            returnVal = parseInt($(this).text().replace(",",""));//parseInt 이전에는 1,304가 나타남. replace는 하지 않으면 쉼표(,)를 점으로 인식해서 parseInt 동작시 1로 나타남
-            console.log(returnVal);
-            callback(returnVal);
+            returnVal = parseInt($(this).text().replace(",", ""));//parseInt 이전에는 1,304가 나타남. replace는 하지 않으면 쉼표(,)를 점으로 인식해서 parseInt 동작시 1로 나타남 --> 이것은 전체곡 갯수
+            console.log("내가 좋아요를 누른 곡의 숫자는 :"+returnVal+"개 입니다.");
+            callback(returnVal); /////////
         });
     });
 }
 
-class Song{
-    constructor(songName,singerName,albumName){
-        this._songName = songName;
-        this._singerName = singerName;
-        this._albumName = albumName;
+class Song {
+    constructor() {
+        this._songName;
+        this._singerName;
+        this._albumName;
     }
 
-    get songName() {
+    getSongName() {
         return this._songName;
     }
 
-    set songName(value) {
+    setSongName(value) {
         this._songName = value;
     }
 
-    get singerName() {
+    getSingerName() {
         return this._singerName;
     }
 
-    set singerName(value) {
+    setSingerName(value) {
         this._singerName = value;
     }
 
-    get albumName() {
+    getAlbumName() {
         return this._albumName;
     }
 
-    set albumName(value) {
+    setAlbumName(value) {
         this._albumName = value;
     }
 }
-
 
 
 //////////////////////참고///////////////////////////////
