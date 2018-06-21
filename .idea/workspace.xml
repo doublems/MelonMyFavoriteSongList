@@ -13,18 +13,31 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FavoritesManager">
+    <favorites_list name="melonMy" />
+  </component>
   <component name="FileEditorManager">
     <leaf>
       <file leaf-file-name="app.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="283">
-              <caret line="55" column="48" selection-start-line="55" selection-start-column="48" selection-end-line="55" selection-end-column="48" />
+            <state relative-caret-position="188">
+              <caret line="169" column="39" selection-start-line="169" selection-start-column="39" selection-end-line="169" selection-end-column="39" />
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>console</find>
+      <find>console.</find>
+      <find>myFavoriteSongs</find>
+      <find>currentIndex</find>
+      <find>현재</find>
+      <find>현재 방</find>
+    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -153,7 +166,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1529396081064</updated>
-      <workItem from="1529396094977" duration="69099000" />
+      <workItem from="1529396094977" duration="87856000" />
     </task>
     <task id="LOCAL-00001" summary="구분자 추가 및 파싱 완료">
       <created>1529483555156</created>
@@ -176,11 +189,25 @@
       <option name="project" value="LOCAL" />
       <updated>1529545874630</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="song 클래스 생성 및 리턴리스트 적용 (프로미스 적용필요)">
+      <created>1529547816262</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1529547816262</updated>
+    </task>
+    <task id="LOCAL-00005" summary="곡 찾아서 배열에 합치기 성공">
+      <created>1529566161247</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1529566161247</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="69099000" />
+    <option name="totallyTimeSpent" value="87856000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -200,13 +227,13 @@
       <window_info anchor="bottom" id="Terminal" weight="0.33006537" />
       <window_info id="Capture Tool" />
       <window_info id="Designer" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25586355" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49837664" visible="true" weight="0.25586355" />
       <window_info anchor="right" id="Database" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" />
       <window_info anchor="right" id="Theme Preview" />
-      <window_info id="Favorites" side_tool="true" />
+      <window_info id="Favorites" sideWeight="0.5016234" side_tool="true" visible="true" weight="0.25586355" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -225,13 +252,20 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="구분자 추가 및 파싱 완료" />
     <MESSAGE value="내가 좋아하는 곡의 숫자 확인 및 전체 조회" />
-    <option name="LAST_COMMIT_MESSAGE" value="내가 좋아하는 곡의 숫자 확인 및 전체 조회" />
+    <MESSAGE value="song 클래스 생성 및 리턴리스트 적용 (프로미스 적용필요)" />
+    <MESSAGE value="곡 찾아서 배열에 합치기 성공" />
+    <option name="LAST_COMMIT_MESSAGE" value="곡 찾아서 배열에 합치기 성공" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="55" column="48" selection-start-line="55" selection-start-column="48" selection-end-line="55" selection-end-column="48" />
+        <state relative-caret-position="188">
+          <caret line="169" column="39" selection-start-line="169" selection-start-column="39" selection-end-line="169" selection-end-column="39" />
         </state>
       </provider>
     </entry>

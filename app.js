@@ -41,25 +41,34 @@ app.use(function (err, req, res, next) {
 
 var request = require('request');
 const cheerio = require('cheerio');
+var memberKey = 5221201;
+
+/*********나의 좋아요 곡 수량을 세기 -> 총 수량만큼 목록구하기 -> 갯수 출력************/
+countMytotalFavoriteSongs(memberKey).then(count => findMyList(count,memberKey)).then(mySongList => mySongList.forEach((element, index, array) => console.log('a[' + index + '] = ' + element)));
 
 
+/************나의 좋아요 곡 호출*****************/
+function findMyList(endIndex, memberKey) {
+    return new Promise(function (resolve, reject) {
+        var mySongList = new Array();
+        for (var startIndex = 0; startIndex < endIndex; startIndex += 20) {
+            var url = "https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=" + startIndex + "&pageSize=20&memberKey="+memberKey+"&orderBy=UPDT_DATE";
 
+            findMyListParser(url, startIndex).then(function (myFavoriteSongs) {
+                mySongList = mySongList.concat(myFavoriteSongs); //모든결과 이어붙이기
 
+                // 계속 update되다가 마지막의 mySongList가 업데이트 된다. (//todo 공간이 한칸이 더생기는데. 이유를 모르겠다.)
+                if((mySongList.length<=endIndex) === false){
+                    console.log(mySongList.length);
+                    resolve(mySongList);
+                }
+            });
+        }
+    });
+}
 
-
-// /*********나의 좋아요 곡 수량을 센 뒤에 목록 받기************/
-countMytotalFavoriteSongs(5221201, function (endIndex) {
-    var mySongList =new Array();
-    for (var startIndex = 0; startIndex < endIndex; startIndex += 20) {
-        var url = "https://www.melon.com/mymusic/like/mymusiclikesong_listPaging.htm?startIndex=" + startIndex + "&pageSize=20&memberKey=5221201&orderBy=UPDT_DATE";
-        findMyList(url, startIndex).then(function(myFavoriteSongs){
-            mySongList = mySongList.concat(myFavoriteSongs);
-            console.log(mySongList.length);
-        })
-    }
-});
-
-function findMyList(url) {
+/********내 리스트 크롤러**********/
+function findMyListParser(url) {
 
     return new Promise(function (resolve, reject) {
         request(url, function (error, response, body) {
@@ -68,8 +77,8 @@ function findMyList(url) {
             let myFavoriteSongs = new Array(); //반환 할 결과값 리스트
 
             /***********내가 좋아요를 누른 목록******************/
-            //https://www.npmjs.com/package/cheerio  // API참조
-            //const myLike = $('span.odd_span, a.fc_mgray',$('.ellipsis'));
+                //https://www.npmjs.com/package/cheerio  // API참조
+                //const myLike = $('span.odd_span, a.fc_mgray',$('.ellipsis'));
             const myLike = $('td');
 
             myLike.each(function (index) {
@@ -108,17 +117,20 @@ function findMyList(url) {
 
 
 }
+
 /***********내가 좋아요를 누른 전체 곡 갯수****************/
-function countMytotalFavoriteSongs(memberKey, callback) {
-    var url = "https://www.melon.com/mymusic/like/mymusiclikesong_list.htm?memberKey=" + memberKey;
-    request(url, function (error, response, body) {
-        const $ = cheerio.load(body); //크롤링후 파서기에 삽입
-        const class_a = $($('#totCnt'));
-        class_a.each(function () {
-            var returnVal = 0;
-            returnVal = parseInt($(this).text().replace(",", ""));//parseInt 이전에는 1,304가 나타남. replace는 하지 않으면 쉼표(,)를 점으로 인식해서 parseInt 동작시 1로 나타남 --> 이것은 전체곡 갯수
-            console.log("내가 좋아요를 누른 곡의 숫자는 :"+returnVal+"개 입니다.");
-            callback(returnVal); /////////
+function countMytotalFavoriteSongs(memberKey) {
+    return new Promise(function (resolve, reject) {
+        var url = "https://www.melon.com/mymusic/like/mymusiclikesong_list.htm?memberKey=" + memberKey;
+        request(url, function (error, response, body) {
+            const $ = cheerio.load(body); //크롤링후 파서기에 삽입
+            const class_a = $($('#totCnt'));
+            class_a.each(function () {
+                var returnVal = 0;
+                returnVal = parseInt($(this).text().replace(",", ""));//parseInt 이전에는 1,304가 나타남. replace는 하지 않으면 쉼표(,)를 점으로 인식해서 parseInt 동작시 1로 나타남 --> 이것은 전체곡 갯수
+                console.log("내가 좋아요를 누른 곡의 숫자는 :" + returnVal + "개 입니다.");
+                resolve(returnVal);//좋아요 눌른 갯수 전송
+            });
         });
     });
 }
@@ -152,6 +164,10 @@ class Song {
 
     setAlbumName(value) {
         this._albumName = value;
+    }
+
+    toString(){
+        return "제목 :"+this._songName+"/" +this._albumName+"앨범에서"+this._singerName+"가 불렀습니다.";
     }
 }
 
