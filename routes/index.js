@@ -5,9 +5,9 @@ var router = express.Router();
 var findMymusic = require('../private_modules/findMyFavoriteMusic.js');
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/my-song-list/:memberKey', function(req, res, next) {
   //res.render('index', { title: 'Express' });
-    var memberKey = 5221201;
+    var memberKey = req.params.memberKey;
     findMymusic.countMytotalFavoriteSongs(memberKey).then(count => findMymusic.findMyList(count,memberKey)).then(mySongList => res.json(mySongList)); // express의 JSON을 사용하여 Array[Object]를 변경
 });
 
